@@ -33,7 +33,8 @@ function loadQuestion(){
 
     $('#timer').html('Timer: '+ counter);
     $('#game').html('
-    <h4>' + question + '</h4>
+        <h4>' + question + '</h4>
+        ${loadChoices(choices)};
     ');
     // $('#answers').html('<p>' + $(loadChoices) + '</p>')
 }    
