@@ -16,10 +16,10 @@
 
 body {
     background-color: darkred;
-    /* background: url("../images/body.jpg");
-    background-position: center;
-    background-repeat: no-repeat; */
+
 }
+
+
 
 .responses {
     margin: 20px;
@@ -28,6 +28,7 @@ body {
 div {
     color: white;
     background-color: grey;
+
 }
 
 .submit-div{
@@ -41,6 +42,8 @@ div {
 	padding: 30px;
     text-align: right;
     float: center;
+    margin-right: 20px;
+    margin-left: 20px;
 }
 
 /* .twd-opt {
