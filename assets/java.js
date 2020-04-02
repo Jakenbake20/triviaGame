@@ -1,57 +1,220 @@
-var quizQuestions = [
-    {
-        question: "At the beginning of the series, how many children did Ned and Catelyn Stark have?",
-        choices:["Two", "Three", "Five", "Twelve"],
-        correctAnswer: "Five"
-    },
-
-    {
-        question: "Who was the first person in the series to be called King of the Nort",
-        choices:["Robb Stark", "Bran Stark", "Edmure Tully", "Hodor"],
-        correctAnswer: "Robb Stark"
-    },
-
-    {
-        question: "How does Daenerys hatch her dragon eggs?",
-        choices:["A funeral pyre", "She sits on them", "She throws them off a cliff", "She makes scrambled eggs with them"],
-        correctAnswer: "A funeral pyre"
-    }
-];
-
-//Initial values
-var counter = 30;
-var currentQuestion = 0;
-var scrore = 0;
-var lost = 0;
-var timer;
-
-//Display the queston and the choices in the browser
-function loadQuestion(){
+$(document).ready(function() {
+    //Creating variable to track the question & "slide" numbers
+    var questionCounter = 0;
     
-    var question = quizQuestions[currentQuestion].question;
-    var choices =  quizQuestions[currentQuestion].choices;
-
-    $('#timer').html('Timer: '+ counter);
-    $('#game').html('
-        <h4>' + question + '</h4>
-        ${loadChoices(choices)};
-    ');
-    // $('#answers').html('<p>' + $(loadChoices) + '</p>')
-}    
+    // timeout 
+    var ansTimeout = 2000;
+    
+    //Creating score variables
+    var correct = 0;
+    var incorrect = 0;
+    var missed = 0;
+    
+    //Creating array of user's answers
+    var userAns = [];
+    
+    //Creating an array of objects with the questions, answer options, and correct answer
+    var questions = [
+    {
+        question: "What is the name of Daenerys' first husband?",
+        choices: ["Kal Drogo", "Rickon Stark", "Jacob Wheat", "Hodor", "Cersi Lannister"],
+        choicesAnswer: 0
+    },
+    {
+        question: "Who is the first person to be referred to as King of the North in the show?",
+        choices: ["Jon Snow", "Rob Stark", "Jamie Lannister", "Edmure Tully", "Sandor Clegane"],
+        choicesAnswer: 1
+    },
+    {
+        question: "How did Dany hatch her dragons?",
+        choices: ["Sitting on them", "Throwing them into a river", "Making a wish", "A funeral pyre", "None of these answers"],
+        choicesAnswer: 3
+    },
+    {
+        question: "What is the name of the dead men marching north of the wall?",
+        choices: ["Ice zombies", "White walkers", "Hogan's heroes", "Night crawlers", "Dead knights"],
+        choicesAnswer: 1
+    },
+    {
+        question: "Who is known as The King Slayer?",
+        choices: ["Brianne of Tarth", "Tyrion Lannister", "Lemmy", "Jamie Lannister", "Sansa Stark"],
+        choicesAnswer: 3
+    },
+    {
+        question: "Tyrion _______ and knows things",
+        choices: ["Drinks", "Does jumping jacks", "Reads", "Prays", "Keeps calm"],
+        choicesAnswer: 0
+    }];
+    
+    //Function to submit answers
+    function submitAns() {
+        $("#submit").on("click", function(e) {
+            e.preventDefault();
+            userAns.length = 0;
+                
+            //Record user answer to question
+            var userSelection = $("#responses input:radio[name=optionsRadios]:checked").val();
+            userAns.push(userSelection);
+            console.log(userAns);
+            nextQ();
+        });
+    };
         
+    //Creating question timer variables & functions
+    var timeLeft = 8;
+    var increment;
     
- 
-
-
-function loadChoices(choices) {
-    var result = '';
-
-    for (var i = 0; i < choices.length; i++){
-        result += '<p class ="choice" data-answer="${choices[i]}">${choices[i]}</p>';
-    }
-
-    return result;
-}
-
-
-loadQuestion();
+    function runTimer() {
+        increment = setInterval(decrement, 1000);
+    };
+    
+    function decrement() {
+        timeLeft--;
+        $("#time-left").html("Time remaining: " + timeLeft + " seconds");
+        if (timeLeft === 0) {
+            stopTimer();
+            userAns.length = 0;		
+            //Record user answer to question
+            var userSelection = $("#responses input:radio[name=optionsRadios]:checked").val();
+            userAns.push(userSelection);
+            console.log(userAns);
+            nextQ();
+        };
+    };
+    
+    function resetTimer() {
+        timeLeft = 8;
+        $("#time-left").html("Time remaining: " + timeLeft + " seconds");
+    };
+    
+    function displayTimer() {
+        $("#time-left").html("Answer Review");
+    };
+    
+    function stopTimer() {
+        clearInterval(increment);
+    };
+    
+    //Function to display the given response options
+    function createRadios() {
+        var responseOptions = $("#responses");
+        //Empty array for user answer
+        responseOptions.empty();
+            
+        for (var i = 0; i < questions[questionCounter].choices.length; i++) {
+            responseOptions.append('<label><input type="radio" name="optionsRadios" id="optionsRadios2" value="' + [i] +'"><div class="twd-opt">' + questions[questionCounter].choices[i] + '</div></input><br></label>');
+        };
+    };
+    
+    //Function to display the given question
+    function displayQ() {
+        clearQ();
+        resetTimer();
+        $(".questionX").html(questions[questionCounter].question);
+        //Calling the function to display the response options
+        createRadios();
+        //Creating submit button
+        $("#submit-div").append('<button type="submit" class="btn btn-default" id="submit">' + "Submit" + '</button>');
+        runTimer()
+        submitAns();
+    };
+    
+    //Display start page
+    function displayStart() {
+        $("#content").append('<a href="#" class="btn btn-primary btn-lg" id="start-button">' + "Start" + '</a>');
+        //Start game
+        $("#start-button").on("click", function(event) {
+            event.preventDefault();
+            //Displays the first question
+            firstQ();
+            resetTimer();
+        });
+    };
+    
+    //Reset for end of game
+    function reset() {
+        questionCounter = 0;
+        correct = 0;
+        incorrect = 0;
+        missed = 0;
+        userAns = [];
+        resetTimer();
+    };
+    
+    //Display end page
+    function displayEnd() {
+        clearQ();
+        $("#content").append('<h3>' + "Correct answers: " + correct + '</h3><br><h3>' + "Incorrect answers: " + incorrect + '</h3><br><h3>' + "Skipped questions: " + missed + '</h3><br><br><a href="#" class="btn btn-primary btn-lg" id="restart-button">' + "Restart Game" + '</a>');
+        //Restart game
+        $("#restart-button").on("click", function(event) {
+            event.preventDefault();
+            //Displays the first question
+            reset();
+            clearQ();
+            displayStart();
+        });
+    };
+    
+    //Function to clear the question
+    function clearQ() {
+        var questionDiv = $(".questionX");
+        questionDiv.empty();
+    
+        var responsesDiv = $("#responses");
+        responsesDiv.empty();
+    
+        var submitDiv = $("#submit-div");
+        submitDiv.empty();
+    
+        var contentDiv = $("#content");
+        contentDiv.empty();
+    
+        stopTimer();
+    };
+    
+    //Showing whether answer was right/wrong
+    function checkQ() {
+        clearQ();
+        var correctAnswer = questions[questionCounter].choicesAnswer;
+        if (userAns[0] == questions[questionCounter].choicesAnswer) {
+            $("#content").append('<h3>'+"Congratulations! You chose the right answer!" + '</h3>');
+            correct++;
+            displayTimer();
+        }
+        else if (userAns[0] === undefined) {
+            $("#content").append('<h3>'+"Time's up!" + '</h3><br><br><h3>' + "The correct answer was: " + questions[questionCounter].choices[correctAnswer] + '</h3>');
+            missed++;
+            displayTimer();
+        }
+        else {
+            $("#content").append('<h3>'+"You chose the wrong answer." + '</h3><br><br><h3>' + "The correct answer was: " + questions[questionCounter].choices[correctAnswer] + '</h3>');
+            incorrect++;
+            displayTimer();
+        };
+    };
+    
+    //Function to change the question 
+    function nextQ() {
+        checkQ();
+        //Incrementing the count by 1
+        questionCounter++;
+        //If the count is the same as the length of the question array, the counts reset to 0
+        if (questionCounter === questions.length) {
+            setTimeout(displayEnd, ansTimeout);
+        } 
+        else {
+            setTimeout(displayQ, ansTimeout);
+        };
+    };
+    
+    //Function to call the first question
+    function firstQ() {
+        var startContent = $("#content");
+        startContent.empty(); 
+        displayQ();
+    };
+    
+    //Displays the start page
+    displayStart();
+    
+    })
